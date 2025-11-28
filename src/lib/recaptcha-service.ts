@@ -1,19 +1,13 @@
-/**
- * Google reCAPTCHA v3 Service
- * 
- * This service handles Google reCAPTCHA v3 validation
- * Documentation: https://developers.google.com/recaptcha/docs/v3
- */
 
 const RECAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
 
 interface RecaptchaResponse {
   success: boolean;
-  score: number;
-  action: string;
   challenge_ts: string;
   hostname: string;
   'error-codes'?: string[];
+  score?: number;
+  action?: string;
 }
 
 interface RecaptchaValidation {
@@ -22,14 +16,6 @@ interface RecaptchaValidation {
   error?: string;
 }
 
-/**
- * Validate Google reCAPTCHA v3 token
- * 
- * @param token - The reCAPTCHA token from frontend
- * @param action - The action name (should match frontend)
- * @param minScore - Minimum score required (0.0 - 1.0)
- * @returns Promise<RecaptchaValidation>
- */
 export async function validateRecaptcha(
   token: string,
   action: string = 'login',
@@ -87,31 +73,8 @@ export async function validateRecaptcha(
       };
     }
 
-    // Check action matches (optional for testing)
-    if (data.action !== action && !process.env.RECAPTCHA_SKIP_ACTION_CHECK) {
-      console.warn('reCAPTCHA action mismatch:', data.action, '!==', action);
-      // For development, we'll allow this but log it
-      if (process.env.NODE_ENV === 'production') {
-        return {
-          isValid: false,
-          error: 'reCAPTCHA action mismatch'
-        };
-      }
-    }
-
-    // Check score
-    if (data.score < minScore) {
-      console.error('reCAPTCHA score too low:', data.score, '<', minScore);
-      return {
-        isValid: false,
-        score: data.score,
-        error: `reCAPTCHA score too low: ${data.score}`
-      };
-    }
-
     return {
       isValid: true,
-      score: data.score,
     };
 
   } catch (error) {

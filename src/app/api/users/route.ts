@@ -11,12 +11,11 @@ export async function POST(request: NextRequest) {
     // Validasi input dengan Zod
     const validatedData = registerSchema.parse(body)
 
-    // Validasi reCAPTCHA v3
     const token = (body as any)?.captcha as string | undefined
     if (!token) {
       return NextResponse.json({ message: 'reCAPTCHA token tidak tersedia' }, { status: 400 })
     }
-    const recaptcha = await validateRecaptcha(token, 'register', parseFloat(process.env.RECAPTCHA_MIN_SCORE || '0.5'))
+    const recaptcha = await validateRecaptcha(token, 'register')
     if (!recaptcha.isValid) {
       const skipDev = process.env.NODE_ENV !== 'production' && !!process.env.RECAPTCHA_SKIP_ACTION_CHECK
       if (!skipDev) {

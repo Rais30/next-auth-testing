@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
@@ -19,7 +19,7 @@ import {
   EyeOff
 } from 'lucide-react'
 import { registerSchema, type RegisterFormData } from '@/lib/validations/auth'
-import { useRecaptcha } from '@/hooks/use-recaptcha'
+import ReCAPTCHA from 'react-google-recaptcha'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -29,7 +29,8 @@ export default function RegisterPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   
-  const { executeRecaptcha, isReady, error: recaptchaError } = useRecaptcha()
+  const recaptchaRef = useRef<ReCAPTCHA>(null)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
 
   const {
     register,
@@ -44,8 +45,8 @@ export default function RegisterPage() {
   const password = watch('password')
 
   const onSubmit = async (data: RegisterFormData) => {
-    if (!isReady) {
-      setError('reCAPTCHA belum siap. Silakan tunggu...')
+    if (!captchaToken) {
+      setError('Silakan selesaikan reCAPTCHA')
       return
     }
 
@@ -54,7 +55,7 @@ export default function RegisterPage() {
     setSuccess('')
 
     try {
-      const recaptchaToken = await executeRecaptcha('register')
+      const recaptchaToken = captchaToken
 
       const response = await fetch('/api/users', {
         method: 'POST',
@@ -220,18 +221,20 @@ export default function RegisterPage() {
               )}
             </div>
 
-            {/* reCAPTCHA v3 indicator */}
+            {/* reCAPTCHA v2 checkbox */}
             <div className="mt-3 p-3 bg-gray-50 rounded-lg text-center">
-              <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+              <div className="flex items-center justify-center space-x-2 text-sm text-gray-600 mb-2">
                 <Shield className="h-4 w-4" />
-                <span>
-                  {isReady ? 'Protected by reCAPTCHA' : 'Loading reCAPTCHA...'}
-                </span>
+                <span>Protected by reCAPTCHA</span>
               </div>
-              {recaptchaError && (
-                <p className="text-xs text-red-500 mt-1">{recaptchaError}</p>
-              )}
-              <p className="text-xs text-gray-500 mt-1">
+              <div className="flex justify-center">
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY as string}
+                  onChange={(token) => setCaptchaToken(token)}
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
                 <a href="https://policies.google.com/privacy" className="hover:underline">Privacy Policy</a> and 
                 <a href="https://policies.google.com/terms" className="hover:underline">Terms of Service</a> apply.
               </p>
@@ -241,7 +244,7 @@ export default function RegisterPage() {
             <Button 
               type="submit" 
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-2"
-              disabled={isLoading || !isValid || !isReady}
+              disabled={isLoading || !isValid || !captchaToken}
             >
               {isLoading ? (
                 <>

@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "@/components/providers";
-import { RecaptchaScript } from "@/components/recaptcha-script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,8 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Auth Starter | Login, Register, Profile",
-  description: "Aplikasi autentikasi sederhana dengan Next.js, Prisma, Auth.js (credentials), dan reCAPTCHA v3.",
-  keywords: ["Next.js", "Auth.js", "Prisma", "reCAPTCHA v3", "Login", "Register", "Profile"],
+  description: "Aplikasi autentikasi sederhana dengan Next.js, Prisma, Auth.js (credentials), dan reCAPTCHA v2 (invisible).",
+  keywords: ["Next.js", "Auth.js", "Prisma", "reCAPTCHA v2", "Login", "Register", "Profile"],
   authors: [{ name: "Auth Starter" }],
   icons: {
     icon: "/logo.svg",
@@ -53,7 +52,7 @@ export default function RootLayout({
         <Providers>
           {children}
           <Toaster />
-          <RecaptchaScript />
+          
         </Providers>
       </body>
     </html>

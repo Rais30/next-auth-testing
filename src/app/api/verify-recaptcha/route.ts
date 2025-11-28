@@ -6,13 +6,13 @@ export async function POST(request: Request) {
     const body = await request.json()
     const token = body?.token
     const action = body?.action || 'login'
-    const minScore = typeof body?.minScore === 'number' ? body.minScore : 0.5
+  const minScore = undefined
 
     if (!token) {
       return NextResponse.json({ success: false, message: 'reCAPTCHA token is missing' }, { status: 400 })
     }
 
-    const result = await validateRecaptcha(token, action, minScore)
+    const result = await validateRecaptcha(token, action)
 
     if (result.isValid) {
       return NextResponse.json({ success: true, message: 'reCAPTCHA verified', score: result.score ?? null })

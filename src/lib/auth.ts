@@ -20,8 +20,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           if (isRecaptchaEnabled()) {
-            const minScore = parseFloat(process.env.RECAPTCHA_MIN_SCORE || '0.5')
-            const recaptchaValidation = await validateRecaptcha(credentials.captcha as string, 'login', minScore)
+            const recaptchaValidation = await validateRecaptcha(credentials.captcha as string, 'login')
             if (!recaptchaValidation.isValid) {
               const skipDev = process.env.NODE_ENV !== 'production' && !!process.env.RECAPTCHA_SKIP_ACTION_CHECK
               if (!skipDev) {

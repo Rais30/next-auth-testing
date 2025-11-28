@@ -19,10 +19,10 @@ export function RecaptchaScript({ siteKey }: RecaptchaScriptProps) {
       src={`https://www.google.com/recaptcha/api.js?render=${siteKeyFinal}`}
       strategy="afterInteractive"
       onLoad={() => {
-        console.log('reCAPTCHA v3 loaded')
+        console.log('reCAPTCHA v2 loaded')
       }}
       onError={(e) => {
-        console.error('Failed to load reCAPTCHA v3:', e)
+        console.error('Failed to load reCAPTCHA v2:', e)
       }}
     />
   )
